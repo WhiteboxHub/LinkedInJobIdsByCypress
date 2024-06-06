@@ -23,11 +23,8 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-// cypress/support/commands.js
-// Add this line to ensure custom commands are loaded
-import './commands';
-// cypress/support/commands.js
-// Custom command to login to LinkedIn
+const path = require('path');
+
 Cypress.Commands.add('loginLinkedIn', () => {
   const username = Cypress.env("linkedin_username");
   const password = Cypress.env("linkedin_password");
@@ -37,17 +34,40 @@ Cypress.Commands.add('loginLinkedIn', () => {
   cy.get('#password').type(password);
   cy.get('button[type="submit"]').click();
 });
-const jobIds = new Set();
 
-// Custom Cypress command to capture job IDs from elements with data-job-id attribute
-Cypress.Commands.add('captureJobIds', () => {
+const jobIds = {};
+Cypress.Commands.add('captureJobIds', (keyword) => {
   cy.get('[data-job-id]').each(($job) => {
     const jobId = $job.attr('data-job-id');
     if (jobId) {
       cy.log("Captured jobId:", jobId);
-      jobIds.add(jobId);
+      if (!Cypress.env('jobIds')) {
+        Cypress.env('jobIds', {});
+      }
+      const jobIds = Cypress.env('jobIds');
+      if (!jobIds[keyword]) {
+        jobIds[keyword] = new Set();
+      }
+      jobIds[keyword].add(jobId);
     }
-  }).then(() => {
-    cy.task('appendToJSONFile', { filePath: 'results/jobIds.json', data: Array.from(jobIds) });
   });
+});
+// cypress/support/commands.js
+Cypress.Commands.add('writeJobIdsToFile', (keyword) => {
+  // Generate the filename dynamically using the keyword and the current date
+  const currentDate = new Date().toISOString().slice(0, 10); // Get current date in YYYY-MM-DD format
+  const fileName = `${keyword}_${currentDate}.json`;
+
+  // Get the job IDs from the environment variable
+  const jobIds = Cypress.env('jobIds');
+  
+  // Check if jobIds exist for the keyword
+  if (jobIds && jobIds[keyword]) {
+    // Write the job IDs to the file
+    cy.writeFile(`cypress/fixtures/${fileName}`, Array.from(jobIds[keyword]), { timeout: 100000 }); // Increase timeout to 10 seconds
+
+  } else {
+    // Handle the case when jobIds don't exist for the keyword
+    throw new Error(`No job IDs found for keyword: ${keyword}`);
+  }
 });

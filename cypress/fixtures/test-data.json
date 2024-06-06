@@ -1,6 +1,14 @@
 [
     {
-      "keyword": "software engineer",
+      "keyword": "ml engineer",
+      "location": "San Francisco, CA"
+    },
+    {
+      "keyword": "UI engineer",
+      "location": "San Francisco, CA"
+    },
+    {
+      "keyword": "QA engineer",
       "location": "San Francisco, CA"
     }
  
