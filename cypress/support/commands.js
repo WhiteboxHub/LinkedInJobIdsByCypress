@@ -64,10 +64,19 @@ Cypress.Commands.add('writeJobIdsToFile', (keyword) => {
   // Check if jobIds exist for the keyword
   if (jobIds && jobIds[keyword]) {
     // Write the job IDs to the file
-    cy.writeFile(`cypress/fixtures/${fileName}`, Array.from(jobIds[keyword]), { timeout: 100000 }); // Increase timeout to 10 seconds
+    cy.writeFile(`cypress/results/${fileName}`, Array.from(jobIds[keyword]), { timeout: 100000 }); // Increase timeout to 10 seconds
 
   } else {
     // Handle the case when jobIds don't exist for the keyword
     throw new Error(`No job IDs found for keyword: ${keyword}`);
   }
 });
+
+
+// Cypress.Commands.add('readJobIdsFromFile', (keyword) => {
+//   const currentDate = new Date().toISOString().slice(0, 10); // Get current date in YYYY-MM-DD format
+//   const fileName = `${keyword}_${currentDate}.json`;
+  
+//   // Read the job IDs from the file
+//   return cy.readFile(`cypress/fixtures/${fileName}`);
+// });

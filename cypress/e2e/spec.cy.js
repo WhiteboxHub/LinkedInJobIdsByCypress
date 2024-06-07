@@ -9,17 +9,18 @@ describe("LinkedIn Job Search Test", () => {
   it("Searches for jobs by keyword and location", () => {
     cy.fixture('test-data.json').then((searchData) => {
       searchData.forEach(data => {
+        const { keyword, location } = data; 
         cy.get(".jobs-search-global-typeahead__input")
           .click()
-          .wait(3000)
           .clear()
-          .type(`${data.keyword} {Enter}`);
-
-        cy.wait(3000);
-
-        cy.get('.jobs-search-results-list')
-          .scrollTo('bottom')
+          .type(`${data.keyword} {Enter}`)
+          .wait(6000);
+        cy.get('.jobs-search-box__text-input').eq(3).click()
+          .clear()
+          .type(`${data.location} {Enter}`)
           .wait(5000);
+      
+        
           function goToNextPage() {
       
             cy.get('.jobs-search-results-list').scrollTo('bottom').wait(5000);
