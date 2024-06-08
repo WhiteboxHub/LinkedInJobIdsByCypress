@@ -18,9 +18,9 @@ describe("LinkedIn Job Search Test", () => {
         cy.get('.jobs-search-box__text-input').eq(3).click()
           .clear()
           .type(`${data.location} {Enter}`)
-          .wait(5000);
-      
-        
+       .wait(10000);
+       //cy.get('.artdeco-button.artdeco-button--2.artdeco-button--secondary').eq(1).click({ force: true }).wait(5000);
+       cy.get('button.artdeco-pill.artdeco-pill--slate.artdeco-pill--2.artdeco-pill--choice[aria-label="Easy Apply filter."]').click({ force: true }).wait(5000);
           function goToNextPage() {
       
             cy.get('.jobs-search-results-list').scrollTo('bottom').wait(5000);
