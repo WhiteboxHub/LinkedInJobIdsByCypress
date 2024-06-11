@@ -50,32 +50,72 @@ describe("LinkedIn Job Application Form", () => {
         cy.get(".artdeco-button--primary").first().scrollIntoView().click().wait(6000);
         cy.get(".artdeco-button--primary").first().click().wait(5000);
   
-        // Fill out additional fields
-        // Check if the question about disability is present
-cy.get('[data-test-form-builder-radio-button-form-component="true"]').should('be.visible').then(($element) => {
-    const questionText = $element.text();
-    if (questionText.includes('disability')) {
-        // Click "No" if the question is about disability
-        cy.get('[data-test-form-builder-radio-button-form-component="true"][id*="no"]').click();
-    } else {
-        // Click "Yes" if the question is not about disability
-        cy.get('[data-test-form-builder-radio-button-form-component="true"][id*="yes"]').click();
-    }
-  });
+  //       // Fill out additional fields
+  //       // Check if the question about disability is present
+  //         cy.get('[data-test-form-builder-radio-button-form-component="true"]').should('be.visible').then(($element) => {
+  //        const questionText = $element.text();
+  //        if (questionText.includes('disability')) {
+  //       // Click "No" if the question is about disability
+  //       cy.get('[data-test-form-builder-radio-button-form-component="true"][id*="no"]').click();
+  //   } else {
+  //       // Click "Yes" if the question is not about disability
+  //       cy.get('[data-test-form-builder-radio-button-form-component="true"][id*="yes"]').click();
+  //   }
+  // });
   
-  cy.get('select[data-test-text-entity-list-form-select]').then(selectElement => {
-    const isDisabilityQuestion = selectElement.text().includes("disability");
+  // cy.get('select[data-test-text-entity-list-form-select]').then(selectElement => {
+  //   const isDisabilityQuestion = selectElement.text().includes("disability");
   
-    if (isDisabilityQuestion) {
-        cy.wrap(selectElement).select("No"); // Select "No" for disability question
-    } else {
-        cy.wrap(selectElement).select("Yes"); // Select "Yes" for non-disability question
-    }
-  });
+  //   if (isDisabilityQuestion) {
+  //       cy.wrap(selectElement).select("No"); // Select "No" for disability question
+  //   } else {
+  //       cy.wrap(selectElement).select("Yes"); // Select "Yes" for non-disability question
+  //   }
+  // });
   
-  cy.get(".artdeco-text-input--input").each(($input) => {
-    cy.wrap($input).clear().type("4");
-  });
+  // cy.get(".artdeco-text-input--input").each(($input) => {
+  //   cy.wrap($input).clear().type("4");
+  // });
+
+// Interacting with form elements
+    // Click the "Yes" radio button directly
+    cy.get('[data-test-text-selectable-option="0"] > .t-14').click();
+
+    // Handle dropdowns
+    cy.get('select[data-test-text-entity-list-form-select]').each(selectElement => {
+      cy.wrap(selectElement).then($select => {
+        const isDisabilityQuestion = $select.text().includes("disability");
+        if (isDisabilityQuestion) {
+          cy.wrap($select).select("No"); // Select "No" for disability question
+        } else {
+          cy.wrap($select).select("Yes"); // Select "Yes" for non-disability question
+        }
+      });
+    });
+
+    // Handle input fields
+    cy.get(".artdeco-text-input--input").each($input => {
+      cy.wrap($input).clear().type("4");
+    });
+
+    // Handle radio button interactions
+    cy.get('input[type="radio"]').each($radio => {
+      cy.wrap($radio).check();
+    });
+
+    // Handle any other form elements if necessary
+    // For example, handling checkboxes or additional dropdowns
+    cy.get('select[data-test-text-entity-list-form-select]').first().then($select => {
+      if ($select.length > 0) {
+        cy.wrap($select).select("Option"); // Select a value from the dropdown
+      } else {
+        cy.get(".artdeco-text-input--input").first().clear().type("4");
+      }
+    });
+
+
+
+
         // Click on "Review" or "Next"
         cy.get('button:contains("Review"), button:contains("Next")').first().click().then(() => {
           cy.get(".jobs-easy-apply-modal__content").scrollTo("bottom").wait(5000);
