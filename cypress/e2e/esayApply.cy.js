@@ -52,36 +52,52 @@ describe("LinkedIn Job Application Form", () => {
     cy.get(".artdeco-button--primary").first().click();
 
 
-    // Check if dropdown exists and handle it
-cy.get('[data-test-text-selectable-option="0"] > .t-14').then(dropdown => {
-  if (dropdown.length === 1) {
-    dropdown.click(); // Click on dropdown option
-    cy.get('select[data-test-text-entity-list-form-select]').each(selectElement => {
-      cy.wrap(selectElement).then($select => {
-        const isDisabilityQuestion = $select.text().includes("disability");
-        if (isDisabilityQuestion) {
-          cy.wrap($select).select("No"); // Select "No" for disability question
+
+
+// radio button
+      cy.get('label[data-test-text-selectable-option__label]').each(($label) => {
+        const labelText = $label.text().toLowerCase();
+        const forValue = $label.attr('for');
+        const escapedForValue = Cypress.$.escapeSelector(forValue); // Escape special characters in ID
+      
+        if (labelText.includes('disability')) {
+          cy.get(#${escapedForValue}[value="no"]).click({ force: true });
         } else {
-          cy.wrap($select).select("Yes"); // Select "Yes" for non-disability question
+          cy.get(#${escapedForValue}[value="yes"]).click({ force: true });
         }
       });
-    });
-  }
-});
+      
 
-// Input field
-cy.get('.artdeco-text-input--input').then($inputFields => {
-  if ($inputFields.length === 1) {
-    cy.wrap($inputFields).clear().type('4');
-  }
-});
+      // Input field
+      cy.get('.artdeco-text-input--input').each(($input) => {
+        cy.wrap($input).clear().type('4');
+      });
 
-// Check if radio button exists and handle it
-cy.get('input[type="radio"]').then($radioButtons => {
-  if ($radioButtons.length === 1) {
-    cy.wrap($radioButtons).check({ force: true }); // Force check the radio button
-  }
-});
+
+    // Check if dropdown exists and handle it
+    cy.get('[data-test-text-selectable-option="0"] > .t-14').then(
+      (dropdown) => {
+        if (dropdown.length === 1) {
+          dropdown.click(); // Click on dropdown option
+          cy.get("select[data-test-text-entity-list-form-select]").each(
+            (selectElement) => {
+              cy.wrap(selectElement).then(($select) => {
+                const isDisabilityQuestion = $select
+                  .text()
+                  .includes("disability");
+                if (isDisabilityQuestion) {
+                  cy.wrap($select).select("No"); // Select "No" for disability question
+                } else {
+                  cy.wrap($select).select("Yes"); // Select "Yes" for non-disability question
+                }
+              });
+            }
+          );
+        }
+      }
+    );
+
+          
 
 
     cy.wait(20000);
