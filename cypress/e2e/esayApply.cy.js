@@ -3,12 +3,12 @@ describe("LinkedIn Job Application Form", () => {
 
   before(() => {
     // Log in to LinkedIn
-    cy.visit("https://www.linkedin.com/login");
-    cy.get("#username").type(Cypress.env("linkedin_username"));
-    cy.get("#password").type(Cypress.env("linkedin_password") + "{Enter}");
-
-    // Wait for login to complete
-    cy.wait(10000);
+    cy.session("login", () => {
+      cy.visit("https://www.linkedin.com/login");
+      cy.get("#username").type("EnterEmail");
+      cy.get("#password").type("password{Enter}");
+      cy.wait(15000);
+    });
 
     // Load the JSON file
     cy.readFile(`cypress/results/${Cypress.env("jsonFileName")}`).then(
@@ -38,136 +38,141 @@ describe("LinkedIn Job Application Form", () => {
         if ($body.find(".artdeco-inline-feedback__message").length > 0) {
           cy.log("Feedback message found, skipping to the next job ID");
         } else {
-          cy.get(".jobs-apply-button--top-card").first().click().wait(5000);
+          // Start the Easy Apply process
+          cy.get(".jobs-apply-button--top-card").first().click();
+          cy.wait(15000);
 
-           // Start the Easy Apply process
-    cy.get(".jobs-apply-button--top-card").first().click();
-    cy.wait(5000);
+          // Handle the phone number input field
+          cy.get(".artdeco-text-input--input")
+            .first()
+            .click()
+            .clear()
+            .type("9876543210")
+            .wait(5000);
 
-    cy.get("body").then(($body) => {
-      if ($body.find(".artdeco-text-input--input").length > 0) {
-        cy.get(".artdeco-text-input--input")
-          .first()
-          .click()
-          .clear()
-          .type("Enter phone Number")
-          .wait(5000);
-      } else {
-        cy.get(".artdeco-text-input--input").eq(2).click().wait(5000);
-      }
-    });
-
-    cy.get(".artdeco-button--primary").first().scrollIntoView().click();
-    cy.wait(3000);
-    cy.get(".artdeco-button--primary").first().click();
-
-    cy.wait(3000);
-    // Handling input fields
-    cy.get("body").then(($body) => {
-      if ($body.find(".artdeco-text-input--input").length > 0) {
-        cy.get(".artdeco-text-input--input").each(($input) => {
-          cy.wrap($input).clear().type("4");
-        });
-        cy.wait(3000);
-      }
-
-      // Check if radio buttons exist
-      if (
-        $body.find("label[data-test-text-selectable-option__label]").length > 0
-      ) {
-        // Iterate over each radio button label
-        cy.get("label[data-test-text-selectable-option__label]").each(
-          ($label) => {
-            const labelText = $label.text().toLowerCase();
-            const forValue = $label.attr("for");
-            const escapedForValue = CSS.escape(forValue); // Escape special characters in ID
-
-            cy.log(`Label Text: ${labelText}`);
-            cy.log(`For Value: ${forValue}`);
-            cy.log(`Escaped For Value: ${escapedForValue}`);
-
-            // Handle radio button click based on label text
-            if (labelText.includes("disability")) {
-              cy.get(`#${escapedForValue}[value="no"]`, {
-                timeout: 10000,
-              }).then(($el) => {
-                if ($el.length > 0 && $el.is(":visible")) {
-                  cy.wrap($el).click({ force: true });
-                  cy.log(`Clicked on #${escapedForValue}[value="no"]`);
-                } else {
-                  cy.log(
-                    `#${escapedForValue}[value="no"] is not visible or does not exist`
-                  );
-                }
+          // Proceed with the application
+          cy.get(".artdeco-button--primary").first().scrollIntoView().click();
+          cy.wait(3000);
+          cy.get(".artdeco-button--primary").first().click();
+          cy.wait(3000);
+          // Handling input fields
+          cy.get("body").then(($body) => {
+            if ($body.find(".artdeco-text-input--input").length > 0) {
+              cy.get(".artdeco-text-input--input").each(($input) => {
+                cy.wrap($input).clear().type("4");
               });
-            } else {
-              cy.get(`#${escapedForValue}[value="yes"]`, {
-                timeout: 10000,
-              }).then(($el) => {
-                if ($el.length > 0 && $el.is(":visible")) {
-                  cy.wrap($el).click({ force: true });
-                  cy.log(`Clicked on #${escapedForValue}[value="yes"]`);
-                } else {
-                  cy.log(
-                    `#${escapedForValue}[value="yes"] is not visible or does not exist`
-                  );
+              cy.wait(3000);
+            }
+
+            // Check if radio buttons exist
+            if (
+              $body.find("label[data-test-text-selectable-option__label]")
+                .length > 0
+            ) {
+              // Iterate over each radio button label
+              cy.get("label[data-test-text-selectable-option__label]").each(
+                ($label) => {
+                  const labelText = $label.text().toLowerCase();
+                  const forValue = $label.attr("for");
+                  const escapedForValue = CSS.escape(forValue); // Escape special characters in ID
+
+                  cy.log(`Label Text: ${labelText}`);
+                  cy.log(`For Value: ${forValue}`);
+                  cy.log(`Escaped For Value: ${escapedForValue}`);
+
+                  // Handle radio button click based on label text
+                  if (labelText.includes("disability")) {
+                    cy.get(`#${escapedForValue}[value="no"]`, {
+                      timeout: 10000,
+                    }).then(($el) => {
+                      if ($el.length > 0 && $el.is(":visible")) {
+                        cy.wrap($el).click({ force: true });
+                        cy.log(`Clicked on #${escapedForValue}[value="no"]`);
+                      } else {
+                        cy.log(
+                          `#${escapedForValue}[value="no"] is not visible or does not exist`
+                        );
+                      }
+                    });
+                  } else {
+                    cy.get(`#${escapedForValue}[value="yes"]`, {
+                      timeout: 10000,
+                    }).then(($el) => {
+                      if ($el.length > 0 && $el.is(":visible")) {
+                        cy.wrap($el).click({ force: true });
+                        cy.log(`Clicked on #${escapedForValue}[value="yes"]`);
+                      } else {
+                        cy.log(
+                          `#${escapedForValue}[value="yes"] is not visible or does not exist`
+                        );
+                      }
+                    });
+                  }
                 }
-              });
-            }
-          }
-        );
-      } else {
-        cy.log("No radio buttons found");
-        // Handle the case where no radio buttons are found
-      }
-
-      if (
-        $body.find("select[data-test-text-entity-list-form-select]").length > 0
-      ) {
-        cy.get("select[data-test-text-entity-list-form-select]").each(
-          ($select) => {
-            const isDisabilityQuestion = $select
-              .text()
-              .toLowerCase()
-              .includes("disability");
-            if (isDisabilityQuestion) {
-              cy.wrap($select).select("No"); // Select "No" for disability question
+              );
             } else {
-              cy.wrap($select).select("Yes"); // Select "Yes" for non-disability question
+              cy.log("No radio buttons found");
+              // Handle the case where no radio buttons are found
             }
-          }
-        );
-      }
+            // dropdown
+            if (
+              $body.find("select[data-test-text-entity-list-form-select]")
+                .length > 0
+            ) {
+              cy.get("select[data-test-text-entity-list-form-select]").each(
+                ($select) => {
+                  const isDisabilityQuestion = $select
+                    .text()
+                    .toLowerCase()
+                    .includes("disability");
+                  if (isDisabilityQuestion) {
+                    cy.wrap($select).select("No"); // Select "No" for disability question
+                  } else {
+                    cy.wrap($select).select("Yes"); // Select "Yes" for non-disability question
+                  }
+                }
+              );
+            }
+          });
+
+          // Handle final steps of the application
+          cy.get("body").then(($body) => {
+            if (
+              $body.find('button:contains("Review"), button:contains("Next")')
+                .length > 0
+            ) {
+              cy.get('button:contains("Review"), button:contains("Next")').each(
+                ($button) => {
+                  // Perform any actions you need on each button here
+                  cy.wrap($button).click(); // Example action: click each button
+
+                  cy.get(".jobs-easy-apply-modal__content").scrollTo("bottom");
+                  cy.wait(5000);
+                  cy.contains("Submit").click();
+                  cy.wait(5000);
+                  cy.get(".artdeco-modal__dismiss").click();
+                  cy.wait(4000);
+                  cy.get(".job-card-container__action").first().click();
+                }
+              );
+            } else {
+              cy.get(".jobs-easy-apply-modal__content").scrollTo("bottom");
+              cy.wait(5000);
+              cy.contains("Submit").click();
+              cy.wait(5000);
+              cy.get(".artdeco-modal__dismiss").click();
+              cy.wait(4000);
+              cy.get(".job-card-container__action").first().click();
+            }
+          });
+        }
+      });
     });
-
-    cy.get("body").then(($body) => {
-      if (
-        $body.find('button:contains("Review"), button:contains("Next")')
-          .length > 0
-      ) {
-        cy.get('button:contains("Review"), button:contains("Next")').each(
-          ($button) => {
-            cy.wrap($button).click();
-
-            cy.get(".jobs-easy-apply-modal__content").scrollTo("bottom");
-            cy.wait(5000);
-            cy.contains("Submit").click();
-            cy.wait(5000);
-            cy.get(".artdeco-modal__dismiss").click();
-            cy.wait(4000);
-            cy.get(".job-card-container__action").first().click();
-          }
-        );
-      } else {
-        cy.get(".jobs-easy-apply-modal__content").scrollTo("bottom");
-        cy.wait(5000);
-        cy.contains("Submit").click();
-        cy.wait(5000);
-        cy.get(".artdeco-modal__dismiss").click();
-        cy.wait(4000);
-        cy.get(".job-card-container__action").first().click();
-      }
-    });
-
   });
+});
+
+// Prevent Cypress from failing tests due to uncaught exceptions
+Cypress.on("uncaught:exception", (err, runnable) => {
+  // returning false here prevents Cypress from failing the test
+  return false;
 });
