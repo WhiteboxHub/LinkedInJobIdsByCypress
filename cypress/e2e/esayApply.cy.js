@@ -4,10 +4,8 @@ describe("LinkedIn Job Application Form", () => {
   before(() => {
     // Log in to LinkedIn
     cy.session("login", () => {
-      cy.visit("https://www.linkedin.com/login");
-      cy.get("#username").type("EnterEmail");
-      cy.get("#password").type("password{Enter}");
-      cy.wait(15000);
+      cy.loginLinkedIn();
+      cy.wait(10000);
     });
 
     // Load the JSON file
@@ -40,7 +38,7 @@ describe("LinkedIn Job Application Form", () => {
         } else {
           // Start the Easy Apply process
           cy.get(".jobs-apply-button--top-card").first().click();
-          cy.wait(15000);
+          cy.wait(5000);
 
           // Handle the phone number input field
           cy.get(".artdeco-text-input--input")
@@ -48,13 +46,14 @@ describe("LinkedIn Job Application Form", () => {
             .click()
             .clear()
             .type("9876543210")
-            .wait(5000);
+            .wait(3000);
 
           // Proceed with the application
           cy.get(".artdeco-button--primary").first().scrollIntoView().click();
           cy.wait(3000);
           cy.get(".artdeco-button--primary").first().click();
           cy.wait(3000);
+
           // Handling input fields
           cy.get("body").then(($body) => {
             if ($body.find(".artdeco-text-input--input").length > 0) {
@@ -83,7 +82,7 @@ describe("LinkedIn Job Application Form", () => {
                   // Handle radio button click based on label text
                   if (labelText.includes("disability")) {
                     cy.get(`#${escapedForValue}[value="no"]`, {
-                      timeout: 10000,
+                      timeout: 5000,
                     }).then(($el) => {
                       if ($el.length > 0 && $el.is(":visible")) {
                         cy.wrap($el).click({ force: true });
@@ -96,7 +95,7 @@ describe("LinkedIn Job Application Form", () => {
                     });
                   } else {
                     cy.get(`#${escapedForValue}[value="yes"]`, {
-                      timeout: 10000,
+                      timeout: 5000,
                     }).then(($el) => {
                       if ($el.length > 0 && $el.is(":visible")) {
                         cy.wrap($el).click({ force: true });
