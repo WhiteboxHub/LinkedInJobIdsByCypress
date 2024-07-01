@@ -30,8 +30,6 @@ module.exports = {
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    // baseUrl: 'https://www.linkedin.com',
-    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
     pageLoadTimeout: 120000, // Increase page load timeout to 2 minutes
     experimentalMemoryManagement: true, // Enable experimental memory management
     numTestsKeptInMemory: 5, // Lower the number of tests kept in memory
